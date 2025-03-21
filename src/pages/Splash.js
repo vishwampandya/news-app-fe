@@ -6,7 +6,7 @@ export default function BuzzarBriefSplash() {
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            navigate('/article-view');
+            navigate('/language-selection');
         }, 2000); // 2000 milliseconds = 5 seconds
 
         return () => clearTimeout(timer); // Cleanup timer on component unmount
@@ -95,6 +95,6 @@ export default function BuzzarBriefSplash() {
         </div>
       </div>
     )
-  }
+}
   
   

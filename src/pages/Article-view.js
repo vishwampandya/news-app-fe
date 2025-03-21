@@ -1,142 +1,160 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Box, 
   Typography, 
   IconButton, 
   Button,
-  Container,
-  Stack,
-  InputBase
+  CircularProgress,
+  Stack
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
-import SearchIcon from '@mui/icons-material/Search';
 import ShareIcon from '@mui/icons-material/Share';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useSwipeable } from 'react-swipeable';
+import { fetchArticles } from '../services/api';
 
 const ArticleView = () => {
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [activeStep, setActiveStep] = useState(0);
+  const location = useLocation();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const industry = searchParams.get('industry');
+    const keyword = searchParams.get('keyword');
+
+    const loadArticles = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await fetchArticles({ industry, keyword });
+        setArticles(data.articles);
+      } catch (err) {
+        console.error('Error loading articles:', err);
+        setError(err.message || 'Failed to load articles');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadArticles();
+  }, [location]);
+
+  const handlers = useSwipeable({
+    onSwipedLeft: () => {
+      if (activeStep < articles.length - 1) {
+        setActiveStep(prev => prev + 1);
+      }
+    },
+    onSwipedRight: () => {
+      if (activeStep > 0) {
+        setActiveStep(prev => prev - 1);
+      }
+    },
+    preventDefaultTouchmoveEvent: true,
+    trackMouse: true
+  });
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+        <Typography color="error">{error}</Typography>
+      </Box>
+    );
+  }
+
+  const currentArticle = articles[activeStep];
+
   return (
-    <Container maxWidth="md">
+    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
       <Box sx={{ 
         py: 2, 
+        px: 2,
         display: 'flex', 
         alignItems: 'center', 
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        borderBottom: '1px solid rgba(0, 0, 0, 0.1)'
       }}>
-        <Stack direction="row" spacing={2} alignItems="center">
-          <IconButton onClick={() => navigate(-1)}>
-            <ArrowBackIcon />
-          </IconButton>
-        </Stack>
-        
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Box component="img" src="/lang.png" alt="Text size" sx={{ width: 24, height: 24 }} />
-          <Button
-            startIcon={<NotificationsOutlinedIcon />}
-            sx={{
-              background: 'linear-gradient(90deg, #6B4EFF 0%, #9B7BFF 100%)',
-              color: 'white',
-              borderRadius: '50px',
-              textTransform: 'none',
-              px: 2.5,
-              '&:hover': {
-                background: 'linear-gradient(90deg, #6B4EFF 0%, #9B7BFF 100%)',
-              }
-            }}
-          >
-            Subscribe
-          </Button>
-        </Stack>
-      </Box>
-
-      {/* Search Bar */}
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          bgcolor: '#F8F9FB',
-          borderRadius: '12px',
-          p: 1,
-          mb: 3
-        }}
-      >
-        <SearchIcon sx={{ color: 'text.secondary', mx: 1 }} />
-        <InputBase
-          placeholder="Search Article"
-          sx={{ ml: 1, flex: 1 }}
-        />
+        <IconButton onClick={() => navigate(-1)}>
+          <ArrowBackIcon />
+        </IconButton>
+        <Typography variant="body2" color="text.secondary">
+          {activeStep + 1} of {articles.length}
+        </Typography>
       </Box>
 
       {/* Article Content */}
-      <Box sx={{ mt: 2 }}>
-        <img 
-          src="/sample_article.png" 
-          alt="Article header"
-          style={{ 
-            width: '100%',
-            borderRadius: '8px',
-            marginBottom: '20px'
-          }}
-        />
-        
-        <Typography variant="h4" sx={{ mb: 2 }}>
-          Unmasking the Truth: Investigate report Exposes Widespread Political Cor...
-        </Typography>
-
-        <Stack 
-          direction="row" 
-          spacing={2} 
-          sx={{ 
-            color: 'text.secondary',
-            mb: 3
-          }}
-        >
-          <Typography>5 mins read</Typography>
-          <Typography>•</Typography>
-          <Typography>3 day ago</Typography>
-          <Typography>•</Typography>
-          <Typography>245</Typography>
-        </Stack>
-
-        <Typography variant="body1" sx={{ mb: 4, color: 'text.secondary' }}>
-          In a groundbreaking investigative report, a team of journalists has unveiled a web of political corruption that has been shrouded in secrecy for far too long. This in-depth exposé shines a light on the dark underbelly of power, revealing shocking revelations and implicating high-profile figures in a complex network of unethical practices.
-        </Typography>
-
-        {/* Read More Button */}
-        <Button
-          variant="outlined"
+      {currentArticle && (
+        <Box
+          {...handlers}
           sx={{
-            borderRadius: '20px',
-            textTransform: 'none',
-            borderColor: '#6B4EFF',
-            color: '#6B4EFF',
-            px: 3,
-            mb: 3
+            flex: 1,
+            overflow: 'auto',
+            backgroundColor: 'white',
+            padding: '20px',
+            touchAction: 'pan-y pinch-zoom'
           }}
         >
-          Read More
-        </Button>
+          <Typography variant="h5" sx={{ mb: 2, fontWeight: 'bold' }}>
+            {currentArticle.title}
+          </Typography>
 
-        {/* Action Buttons */}
-        <Stack 
-          direction="row" 
-          spacing={2} 
-          justifyContent="flex-end"
-          sx={{ mt: 2 }}
-        >
-          <IconButton sx={{ bgcolor: '#6B4EFF', color: 'white' }}>
-            <ShareIcon />
-          </IconButton>
-          <IconButton sx={{ bgcolor: '#6B4EFF', color: 'white' }}>
-            <VolumeUpIcon />
-          </IconButton>
-        </Stack>
-      </Box>
-    </Container>
+          <Box sx={{ mb: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            {currentArticle.categories.map((category) => (
+              <Typography
+                key={category}
+                variant="caption"
+                sx={{
+                  backgroundColor: '#EBE9FF',
+                  color: '#6C5CE7',
+                  padding: '4px 8px',
+                  borderRadius: '4px'
+                }}
+              >
+                {category}
+              </Typography>
+            ))}
+          </Box>
+
+          <Typography variant="body1" sx={{ mb: 3 }}>
+            {currentArticle.summary || currentArticle.content.slice(0, 300) + '...'}
+          </Typography>
+
+          <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box>
+              <Typography variant="caption" color="text.secondary">
+                {new Date(currentArticle.published_date).toLocaleDateString()}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+                • {currentArticle.source}
+              </Typography>
+            </Box>
+            
+            <Stack direction="row" spacing={1}>
+              <IconButton size="small">
+                <ShareIcon />
+              </IconButton>
+              <IconButton size="small">
+                <VolumeUpIcon />
+              </IconButton>
+            </Stack>
+          </Box>
+        </Box>
+      )}
+    </Box>
   );
 };
 

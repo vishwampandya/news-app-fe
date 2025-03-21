@@ -4,15 +4,21 @@ import { ThemeProvider, createTheme } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 
 // Pages
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
 import Splash from './pages/Splash';
 import ArticleView from './pages/Article-view';
+import IndustriesSelection from './pages/IndustriesSelection';
+import FetchingNews from './pages/FetchingNews';
+import LanguageSelection from './pages/LanguageSelection';
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1976d2',
+      main: '#6C5CE7',
+    },
+  },
+  typography: {
+    h4: {
+      fontWeight: 700,
     },
   },
 });
@@ -24,10 +30,11 @@ function App() {
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/splash" element={<Splash />} />
+            <Route path="/language-selection" element={<LanguageSelection />} />
+            <Route path="/fetching-news" element={<FetchingNews />} />
             <Route path="/article-view" element={<ArticleView />} />
+            <Route path="/customize-feed" element={<IndustriesSelection />} />
             <Route path="/" element={<Navigate to="/splash" replace />} />
           </Routes>
         </ThemeProvider>
