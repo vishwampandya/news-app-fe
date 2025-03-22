@@ -1,8 +1,6 @@
-import axios from 'axios';
-
 const API_BASE_URL = 'http://192.168.50.138:8000/api';
 const API_KEY = process.env.REACT_APP_API_KEY;
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+// const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 
 export const fetchArticle = async (articleId) => {
   try {
