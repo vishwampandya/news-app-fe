@@ -84,7 +84,7 @@ export const fetchArticles = async (params) => {
       india_focus: params.india_focus || 'true',
       business_only: params.business_only || 'true',
       page: '1',
-      limit: '10',
+      limit: '100',
       sort_by: 'published_date',
       sort_order: 'desc'
     });

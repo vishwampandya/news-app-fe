@@ -18,6 +18,7 @@ import volumeIcon from '../assets/sound.svg';
 import linkIcon from '../assets/link.svg';
 import bellIcon from '../assets/bell_icon.svg';
 import { Book, MenuBookRounded } from '@mui/icons-material';
+import textToSpeech from '../util/text-to-speech';
 
 // Placeholder image for articles without images
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80';
@@ -40,6 +41,15 @@ const ArticleView = () => {
   const toggleBottomSheet = () => {
     setIsBottomSheetOpen(!isBottomSheetOpen);
   };
+
+  useEffect(() => {
+    textToSpeech.init();
+    
+    // Clean up when component unmounts
+    return () => {
+      textToSpeech.stop();
+    };
+  }, []);
 
   useEffect(() => {
     const loadArticles = async () => {
@@ -183,7 +193,8 @@ const ArticleView = () => {
         <img 
           src={logo} 
           alt="Buzzar Brief Logo" 
-          style={{ width: '103px' }} 
+          style={{ width: '103px' }}
+          onClick={() => navigate('/customize-feed')}
         />
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, }}>
           {!isSubscribed && (
@@ -225,6 +236,7 @@ const ArticleView = () => {
         {/* Previous Article - comes from top when swiping down */}
         {prevArticle && (
           <ArticleCard
+            key={prevArticle.id}
             article={prevArticle}
             sx={{
               position: 'absolute',
@@ -244,6 +256,7 @@ const ArticleView = () => {
 
         {/* Current Article */}
         <ArticleCard
+          key={currentArticle.id}
           article={currentArticle}
           handlers={handlers}
           sx={{
@@ -264,6 +277,7 @@ const ArticleView = () => {
         {/* Next Article - starts below and fades in when swiping up */}
         {nextArticle && (
           <ArticleCard
+            key={nextArticle.id}
             article={nextArticle}
             sx={{
               position: 'absolute',
@@ -458,123 +472,159 @@ const ArticleView = () => {
     </Box>
   );
 };
-
-// Separate ArticleCard component for better organization
-const ArticleCard = ({ article, handlers = {}, sx = {} }) => (
-  <Box
-    {...handlers}
-    sx={{
-      height: '100%',
-      overflow: 'auto',
-      bgcolor: 'white',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      ...sx
-    }}
-  >
-    {/* Article Image */}
-    <Box sx={{
-      width: '100%',
-      height: '170px',
-      top: '25px',
-      padding: '0px 24px',
-      borderRadius: '12px',
-    }}>
-      <img 
-        src={DEFAULT_IMAGE} 
-        alt={article.title}
-        style={{
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          borderRadius: '12px',
-        }}
-      />
-
-    </Box>
-
-    {/* Article Content */}
-    <Box sx={{ padding: '24px' }}>
-
-      <Typography  sx={{ color: MEDIUM_DARK_DARK_GREY_COLOR, fontSize: '24px', lineHeight: '32px', fontFamily: 'Times', fontWeight: '700' , }}>
-        {article.title}
-      </Typography>
-
-      <Box sx={{ marginTop: '8px',display: 'flex', alignItems: 'center', }}>
-        <Typography variant="caption" sx={{ color: MEDIUM_GREY_COLOR, display: 'flex', alignItems: 'center', marginRight: '3px' }}>
-          <MenuBookRounded sx={{  color: MEDIUM_GREY_COLOR,width: '12px', height: '12px',textAlign: 'center',marginBottom: '2px', marginRight: '4px' }}/> 
-          {Math.ceil(article.content.length / 1000)} mins read
-        </Typography>
-        <Typography variant="caption" sx={{  color: MEDIUM_GREY_COLOR }}>
-          • {(() => {
-              const publishDate = new Date(article.published_date);
-              const now = new Date();
-              const diffTime = Math.abs(now - publishDate);
-              const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-              
-              if (diffDays === 0) {
-                // If published today, show the time
-                return `Today ${publishDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
-              } else if (diffDays === 1) {
-                return `Yesterday ${publishDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
-              } else {
-                return `${diffDays} days ago`;
-              }
-            })()}
-        </Typography>
+const ArticleCard = ({ article, handlers = {}, sx = {} }) => {
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  
+  const handleVoicePress = () => {
+    if (isSpeaking) {
+      textToSpeech.stop();
+      setIsSpeaking(false);
+    } else {
+      // Prepare the text to be read
+      // We'll combine the title and summary/content for a better experience
+      const textToRead = `${article.title}. ${article.summary || article.content.slice(0, 1000)}`;
+      
+      textToSpeech.speak(
+        textToRead,
+        () => setIsSpeaking(true),
+        () => setIsSpeaking(false)
+      );
+    }
+  };
+  
+  return (
+    <Box
+      {...handlers}
+      sx={{
+        height: '100%',
+        overflow: 'auto',
+        bgcolor: 'white',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        ...sx
+      }}
+    >
+      {/* Article Image */}
+      <Box sx={{
+        width: '100%',
+        height: '170px',
+        top: '25px',
+        padding: '0px 24px',
+        borderRadius: '12px',
+      }}>
+        <img 
+          src={article.image_url || DEFAULT_IMAGE}
+          alt={article.title}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            borderRadius: '12px',
+          }}
+        />
       </Box>
 
-      <Typography 
-        variant="body1" 
-        sx={{ 
-          color: MEDIUM_DARK_GREY_COLOR,
-          marginTop: '24px',
-          fontSize: '14px',
-          fontFamily: 'Inter',
-          fontWeight: 400,
-        }}
-      >
-        {article.summary || article.content.slice(0, 300) + '...'}
-      </Typography>
+      {/* Article Content */}
+      <Box sx={{ padding: '24px' }}>
+        <Typography sx={{ color: MEDIUM_DARK_DARK_GREY_COLOR, fontSize: '24px', lineHeight: '32px', fontFamily: 'Times', fontWeight: '700' }}>
+          {article.title}
+        </Typography>
 
-
-      {/* Action Buttons */}
-      <Box sx={{ position: 'absolute', left: 0, right: 0, bottom: 0, display: 'flex', padding: '20px 26px', alignItems: 'center', justifyContent: 'space-between' }}>
-        {/* Read More Link */}
-        <Box sx={{ padding: '8px 16px', borderRadius: '30px',border: `1px solid ${PRIMARY_COLOR}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '125px' }}
-         onClick={() => window.open(article.url, '_blank')} >
-          <Typography
-            sx={{
-              color: PRIMARY_COLOR,
-              fontWeight: 400,
-              fontSize: '14px',
-              fontFamily: 'Inter',
-              cursor: 'pointer',
-            }}
-          >
-            Read More
+        <Box sx={{ marginTop: '8px', display: 'flex', alignItems: 'center' }}>
+          <Typography variant="caption" sx={{ color: MEDIUM_GREY_COLOR, display: 'flex', alignItems: 'center', marginRight: '3px' }}>
+            <MenuBookRounded sx={{ color: MEDIUM_GREY_COLOR, width: '12px', height: '12px', textAlign: 'center', marginBottom: '2px', marginRight: '4px' }}/> 
+            {Math.ceil(article.content.length / 1000)} mins read
           </Typography>
-          <img src={linkIcon} alt="arrow right" style={{ width: '12px', height: '12px' }}/>
-        </Box>
-        
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Box sx={{  borderRadius: '50%', boxShadow: '0px 0px 8px 3px rgba(0, 0, 0, 0.1)', backgroundColor:PRIMARY_COLOR ,width: '46px', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <img src={bookmarkIcon} alt="bookmark" style={{ width: '20px', height: '20px' }}/>
-          </Box>
-          <Box sx={{  borderRadius: '50%',boxShadow: '0px 0px 8px 3px rgba(0, 0, 0, 0.1)', backgroundColor:PRIMARY_COLOR ,width: '46px', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <img src={shareIcon} alt="bookmark" style={{ width: '20px', height: '20px' }}/>
-          </Box>
-          <Box sx={{  borderRadius: '50%',boxShadow: '0px 0px 8px 3px rgba(0, 0, 0, 0.1)', backgroundColor:PRIMARY_COLOR ,width: '46px', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <img src={volumeIcon} alt="bookmark" style={{ width: '20px', height: '20px' }}/>
-          </Box>
+          <Typography variant="caption" sx={{ color: MEDIUM_GREY_COLOR }}>
+            • {(() => {
+                const publishDate = new Date(article.published_date);
+                const now = new Date();
+                const diffTime = Math.abs(now - publishDate);
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays === 0) {
+                  return `Today ${publishDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+                } else if (diffDays === 1) {
+                  return `Yesterday ${publishDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+                } else {
+                  return `${diffDays} days ago`;
+                }
+              })()}
+          </Typography>
         </Box>
 
-        
+        <Typography 
+          variant="body1" 
+          sx={{ 
+            color: MEDIUM_DARK_GREY_COLOR,
+            marginTop: '24px',
+            fontSize: '14px',
+            fontFamily: 'Inter',
+            fontWeight: 400,
+          }}
+        >
+          {article.summary || article.content.slice(0, 300) + '...'}
+        </Typography>
+
+        {/* Action Buttons */}
+        <Box sx={{ position: 'absolute', left: 0, right: 0, bottom: 0, display: 'flex', padding: '20px 26px', alignItems: 'center', justifyContent: 'space-between' }}>
+          {/* Read More Link */}
+          <Box sx={{ padding: '8px 16px', borderRadius: '30px', border: `1px solid ${PRIMARY_COLOR}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '125px' }}
+            onClick={() => window.open(article.url, '_blank')} >
+            <Typography
+              sx={{
+                color: PRIMARY_COLOR,
+                fontWeight: 400,
+                fontSize: '14px',
+                fontFamily: 'Inter',
+                cursor: 'pointer',
+              }}
+            >
+              Read More
+            </Typography>
+            <img src={linkIcon} alt="arrow right" style={{ width: '12px', height: '12px' }}/>
+          </Box>
+          
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Box sx={{ borderRadius: '50%', boxShadow: '0px 0px 8px 3px rgba(0, 0, 0, 0.1)', backgroundColor: PRIMARY_COLOR, width: '46px', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img src={bookmarkIcon} alt="bookmark" style={{ width: '20px', height: '20px' }}/>
+            </Box>
+            <Box sx={{ borderRadius: '50%', boxShadow: '0px 0px 8px 3px rgba(0, 0, 0, 0.1)', backgroundColor: PRIMARY_COLOR, width: '46px', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img src={shareIcon} alt="share" style={{ width: '20px', height: '20px' }}/>
+            </Box>
+            {/* Updated volume button with active state */}
+            <Box 
+              onClick={handleVoicePress}
+              sx={{ 
+                borderRadius: '50%', 
+                boxShadow: '0px 0px 8px 3px rgba(0, 0, 0, 0.1)', 
+                backgroundColor: isSpeaking ? EXPLOSIVE_YELLOW_COLOR : PRIMARY_COLOR, 
+                width: '46px', 
+                height: '46px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'background-color 0.3s ease'
+              }}
+            >
+              <img 
+                src={volumeIcon} 
+                alt={isSpeaking ? "stop audio" : "play audio"} 
+                style={{ 
+                  width: '20px', 
+                  height: '20px',
+                  filter: isSpeaking ? 'invert(0%)' : 'invert(0%)' // Adjust if needed for color
+                }}
+              />
+            </Box>
+          </Box>
+        </Box>
       </Box>
     </Box>
-  </Box>
-);
+  );
+};
 
 // Bottom Sheet Component
 const BottomSheet = ({ open, onClose, children }) => {
