@@ -6,8 +6,9 @@ import logo from '../assets/logo_v2.png';
 import searchIcon from '../assets/search.svg';
 import languageIcon from '../assets/language_v2.svg';
 import { DARK_GREY_COLOR, GREY_COLOR, LIGHT_GREY_COLOR, LINE_COLOR, PRIMARY_COLOR, PRIMARY_COLOR_BORDER, PRIMARY_LIGHT_COLOR, SEARCH_BAR_COLOR } from '../constants/constant';
-import { Factory } from '@mui/icons-material';
+import { Factory, Star } from '@mui/icons-material';
 import { capitalizeWords } from '../util/util';
+import FetchingNews from './FetchingNews';
 
 const getIndustryIconPath = (industryName) => {
   return `/industry-icons/${industryName.toLowerCase().replace(/[^a-z0-9]/g, '')}.png`;
@@ -20,6 +21,7 @@ const IndustriesSelection = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [failedImages, setFailedImages] = useState(new Set());
 
   useEffect(() => {
@@ -97,12 +99,18 @@ const IndustriesSelection = () => {
     );
   }
 
+  if (isLoading) {
+    return (
+      <FetchingNews />
+    );
+  }
+
   return (
     <Box sx={{ minHeight: '100vh',  display: 'flex', flexDirection: 'column', position: 'relative' }}>
       <Box sx={{ 
             bgcolor: PRIMARY_COLOR,
             padding: '20px 24px',
-            maxWidth: '375px',
+            maxWidth: '500px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -128,6 +136,8 @@ const IndustriesSelection = () => {
         top: '69px',
         position:"absolute",
         flex: 1,
+        minWidth: '100%',
+        minHeight: '100vh',
         backgroundColor: '#F9FAFB',
       }}>
         {/* Search Bar */}
@@ -168,8 +178,8 @@ const IndustriesSelection = () => {
         <Box sx={{ padding: '0 24px', display: 'flex', flexDirection: 'column' }}>
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Typography component="h1" sx={{ fontWeight: '900', fontSize: '24px', fontFamily: 'Times'}}>
-                Customise Your News Feed
+              <Typography sx={{ fontWeight: '900', fontSize: '24px', fontFamily: 'Times'}}>
+                Customise Your News Feed&nbsp;<Star sx={{ color: '#EAB308', fontWeight: '400', fontSize: '15px' }} />
               </Typography>
             </Box>
             <Typography sx={{ fontWeight: '400', fontSize: '12px', fontFamily: 'Inter',color: GREY_COLOR, paddingTop: '16px' ,paddingBottom: '24px'}}>

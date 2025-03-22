@@ -8,6 +8,7 @@ import {
   Stack,
   InputBase,
   Chip,
+  Link,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ShareIcon from '@mui/icons-material/Share';
@@ -16,6 +17,13 @@ import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSwipeable } from 'react-swipeable';
 import { fetchArticles } from '../services/api';
+import { PRIMARY_COLOR } from '../constants/constant';
+import logo from '../assets/logo_v2.png';
+import languageIcon from '../assets/language_v2.svg';
+import bookmarkIcon from '../assets/save.svg';
+import shareIcon from '../assets/share.svg';
+import volumeIcon from '../assets/sound.svg';
+import linkIcon from '../assets/link.svg';
 
 // Placeholder image for articles without images
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80';
@@ -45,6 +53,7 @@ const ArticleView = () => {
         };
 
         const data = await fetchArticles(params);
+        console.log(data);
         if (data && data.articles) {
           setArticles(data.articles);
         } else {
@@ -63,7 +72,8 @@ const ArticleView = () => {
 
   const handlers = useSwipeable({
     onSwiping: (event) => {
-      if (event.dir === 'Up' || event.dir === 'Down') {
+      // Only allow swipe up or swipe down if not on first article
+      if (event.dir === 'Up' || (event.dir === 'Down' && activeStep > 0)) {
         // Calculate swipe progress (0 to 1)
         const progress = Math.min(Math.abs(event.deltaY) / 200, 1);
         setSwipeProgress(event.dir === 'Up' ? progress : -progress);
@@ -129,69 +139,34 @@ const ArticleView = () => {
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: 'white' }}>
       {/* Header */}
       <Box sx={{ 
-        bgcolor: '#6C5CE7',
-        p: 2,
-      }}>
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'space-between',
-          mb: 2
-        }}>
-          <img 
-            src="/splash_screen_logo.png" 
-            alt="Buzzar Brief Logo" 
-            style={{ height: '32px' }}
-          />
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Button
-              variant="contained"
-              sx={{
-                bgcolor: '#FFD93D',
-                color: 'black',
-                borderRadius: 28,
-                px: 3,
-                '&:hover': { bgcolor: '#FFD93D' }
-              }}
-            >
-              Subscribe
-            </Button>
-            <img 
-              src="/lang.png" 
-              alt="Language" 
-              style={{ 
-                height: '28px',
-                width: '28px',
-                objectFit: 'contain',
-                cursor: 'pointer'
-              }}
-            />
-          </Box>
-        </Box>
-
-        {/* Search Bar */}
-        <Box sx={{
-          display: 'flex',
-          alignItems: 'center',
-          bgcolor: 'rgba(255, 255, 255, 0.1)',
-          borderRadius: '12px',
-          p: '8px 16px',
-        }}>
-          <SearchIcon sx={{ color: 'white', mr: 1 }} />
-          <InputBase
-            placeholder="Search Article"
-            sx={{ 
-              flex: 1,
-              color: 'white',
-              '&::placeholder': { color: 'rgba(255, 255, 255, 0.7)' }
-            }}
-          />
-        </Box>
+            bgcolor: PRIMARY_COLOR,
+            padding: '20px 24px',
+            maxWidth: '500px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            position: 'fixed',
+            zIndex: 1000,
+            width: '100%',
+            top: 0,
+          }}>
+        <img 
+          src={logo} 
+          alt="Buzzar Brief Logo" 
+          style={{ width: '103px' }} 
+        />
+        <img 
+          src={languageIcon} 
+          alt="Language" 
+          style={{ height: '22px', width: '22px', objectFit: 'contain' }} 
+        /> 
       </Box>
 
       {/* Articles Container */}
-      <Box sx={{ position: 'relative', flex: 1, overflow: 'hidden' }}>
-        {/* Previous Article */}
+      <Box sx={{ position: 'absolute', top: 50, left: 0, right: 0, bottom: 0 , overflow: 'hidden' }}>
+        {/* All articles stacked on top of each other with proper z-index */}
+        
+        {/* Previous Article - comes from top when swiping down */}
         {prevArticle && (
           <ArticleCard
             article={prevArticle}
@@ -200,9 +175,13 @@ const ArticleView = () => {
               top: 0,
               left: 0,
               right: 0,
-              transform: `translateY(${-100 + (swipeProgress < 0 ? Math.abs(swipeProgress) * 100 : 0)}%)`,
-              transition: isAnimating ? 'transform 0.3s ease-out' : 'none',
-              zIndex: swipeProgress < 0 ? 2 : 0
+              height: '100%',
+              // Start at -100% (above viewport) and move down when swiping down
+              transform: `translateY(${swipeProgress < 0 ? -100 + Math.abs(swipeProgress) * 100 : -100}%)`,
+              // Fade in when swiping down
+              opacity: swipeProgress < 0 ? Math.abs(swipeProgress) : 0,
+              transition: isAnimating ? 'transform 0.3s ease-out, opacity 0.3s ease-out' : 'none',
+              zIndex: 3
             }}
           />
         )}
@@ -216,13 +195,17 @@ const ArticleView = () => {
             top: 0,
             left: 0,
             right: 0,
-            transform: `translateY(${swipeProgress * 100}%)`,
-            transition: isAnimating ? 'transform 0.3s ease-out' : 'none',
-            zIndex: 1
+            height: '100%',
+            // When swiping up: move up; when swiping down: stay in place
+            transform: `translateY(${swipeProgress > 0 ? -swipeProgress * 50 : 0}%)`,
+            // Fade out in both directions
+            opacity: 1 - Math.abs(swipeProgress),
+            transition: isAnimating ? 'transform 0.3s ease-out, opacity 0.3s ease-out' : 'none',
+            zIndex: 2
           }}
         />
 
-        {/* Next Article */}
+        {/* Next Article - starts below and fades in when swiping up */}
         {nextArticle && (
           <ArticleCard
             article={nextArticle}
@@ -231,9 +214,13 @@ const ArticleView = () => {
               top: 0,
               left: 0,
               right: 0,
-              transform: `translateY(${100 - (swipeProgress > 0 ? swipeProgress * 100 : 0)}%)`,
-              transition: isAnimating ? 'transform 0.3s ease-out' : 'none',
-              zIndex: swipeProgress > 0 ? 2 : 0
+              height: '100%',
+              // Always positioned underneath, move up slightly when being revealed
+              transform: `translateY(${swipeProgress > 0 ? 50 - swipeProgress * 50 : 50}%)`,
+              // Fade in when swiping up
+              opacity: swipeProgress > 0 ? swipeProgress : 0,
+              transition: isAnimating ? 'transform 0.3s ease-out, opacity 0.3s ease-out' : 'none',
+              zIndex: 1
             }}
           />
         )}
@@ -295,7 +282,7 @@ const ArticleCard = ({ article, handlers = {}, sx = {} }) => (
             size="small"
             sx={{
               bgcolor: 'rgba(255, 255, 255, 0.9)',
-              color: '#6C5CE7',
+              color: PRIMARY_COLOR,
               fontWeight: 500
             }}
           />
@@ -332,41 +319,42 @@ const ArticleCard = ({ article, handlers = {}, sx = {} }) => (
         {article.summary || article.content.slice(0, 300) + '...'}
       </Typography>
 
-      {/* Read More Link */}
-      <Typography
-        component="a"
-        href={article.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        sx={{
-          color: '#6C5CE7',
-          textDecoration: 'none',
-          fontWeight: 500,
-          display: 'block',
-          mb: 3,
-          cursor: 'pointer',
-          '&:hover': {
-            textDecoration: 'underline'
-          }
-        }}
-      >
-        Read More →
-      </Typography>
 
       {/* Action Buttons */}
-      <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 2 }}>
-        <IconButton sx={{ color: '#6C5CE7' }}>
-          <BookmarkBorderIcon />
-        </IconButton>
-        <IconButton sx={{ color: '#6C5CE7' }}>
-          <ShareIcon />
-        </IconButton>
-        <IconButton sx={{ color: '#6C5CE7' }}>
-          <VolumeUpIcon />
-        </IconButton>
-      </Stack>
+      <Box sx={{ position: 'absolute', left: 0, right: 0, bottom: 0, display: 'flex', padding: '16px', alignItems: 'center', justifyContent: 'space-between' }}>
+        {/* Read More Link */}
+        <Box sx={{ padding: '8px 16px', borderRadius: '30px',border: `1px solid ${PRIMARY_COLOR}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '125px' }}
+         onClick={() => window.open(article.url, '_blank')} >
+          <Typography
+            sx={{
+              color: PRIMARY_COLOR,
+              fontWeight: 400,
+              fontSize: '14px',
+              fontFamily: 'Inter',
+              cursor: 'pointer',
+            }}
+          >
+            Read More
+          </Typography>
+          <img src={linkIcon} alt="arrow right" style={{ width: '12px', height: '12px' }}/>
+        </Box>
+        
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{  borderRadius: '50%', boxShadow: '0px 0px 8px 3px rgba(0, 0, 0, 0.1)', backgroundColor:PRIMARY_COLOR ,width: '46px', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <img src={bookmarkIcon} alt="bookmark" style={{ width: '20px', height: '20px' }}/>
+          </Box>
+          <Box sx={{  borderRadius: '50%',boxShadow: '0px 0px 8px 3px rgba(0, 0, 0, 0.1)', backgroundColor:PRIMARY_COLOR ,width: '46px', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <img src={shareIcon} alt="bookmark" style={{ width: '20px', height: '20px' }}/>
+          </Box>
+          <Box sx={{  borderRadius: '50%',boxShadow: '0px 0px 8px 3px rgba(0, 0, 0, 0.1)', backgroundColor:PRIMARY_COLOR ,width: '46px', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <img src={volumeIcon} alt="bookmark" style={{ width: '20px', height: '20px' }}/>
+          </Box>
+        </Box>
+
+        
+      </Box>
     </Box>
   </Box>
 );
 
-export default ArticleView; 
+export default ArticleView;

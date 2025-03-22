@@ -18,7 +18,7 @@ const MobileBox = ({
   className = '',
 }) => {
   const boxStyle = {
-    maxWidth: '375px', // Average mobile screen width
+    maxWidth: '500px', // Average mobile screen width
     width: '100%',
     height: '100%',
     backgroundColor,
