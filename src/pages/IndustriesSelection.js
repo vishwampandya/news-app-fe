@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Button, Chip, CircularProgress, InputBase } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import SearchIcon from '@mui/icons-material/Search';
 import { fetchIndustries } from '../services/api';
+import logo from '../assets/logo_v2.png';
+import searchIcon from '../assets/search.svg';
+import languageIcon from '../assets/language_v2.svg';
+import { DARK_GREY_COLOR, GREY_COLOR, LIGHT_GREY_COLOR, LINE_COLOR, PRIMARY_COLOR, PRIMARY_COLOR_BORDER, PRIMARY_LIGHT_COLOR, SEARCH_BAR_COLOR } from '../constants/constant';
+import { Factory } from '@mui/icons-material';
+import { capitalizeWords } from '../util/util';
 
 const getIndustryIconPath = (industryName) => {
   return `/industry-icons/${industryName.toLowerCase().replace(/[^a-z0-9]/g, '')}.png`;
@@ -93,26 +98,37 @@ const IndustriesSelection = () => {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'white', display: 'flex', flexDirection: 'column' }}>
-      {/* Header with Logo */}
-      <Box sx={{ bgcolor: '#6C5CE7', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <Box sx={{ minHeight: '100vh',  display: 'flex', flexDirection: 'column', position: 'relative' }}>
+      <Box sx={{ 
+            bgcolor: PRIMARY_COLOR,
+            padding: '20px 24px',
+            maxWidth: '375px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            position: 'fixed',
+            zIndex: 1000,
+            width: '100%',
+            top: 0,
+          }}>
         <img 
-          src="/splash_screen_logo.png" 
+          src={logo} 
           alt="Buzzar Brief Logo" 
-          style={{ height: '32px', objectFit: 'contain' }} 
+          style={{ width: '103px' }} 
         />
         <img 
-          src="/language-icon.png" 
+          src={languageIcon} 
           alt="Language" 
-          style={{ height: '24px', objectFit: 'contain' }} 
-        />
+          style={{ height: '22px', width: '22px', objectFit: 'contain' }} 
+        /> 
       </Box>
 
       {/* Scrollable Content Container */}
-      <Box sx={{ 
-        flex: 1, 
-        overflowY: 'auto',
-        pb: '80px', // Add padding bottom to prevent content from being hidden behind the button
+      <Box sx={{
+        top: '69px',
+        position:"absolute",
+        flex: 1,
+        backgroundColor: '#F9FAFB',
       }}>
         {/* Search Bar */}
         <Box sx={{ padding: '16px 24px' }}>
@@ -120,13 +136,26 @@ const IndustriesSelection = () => {
             sx={{
               display: 'flex',
               alignItems: 'center',
-              bgcolor: '#F8F9FE',
-              borderRadius: '12px',
-              padding: '8px 16px',
+              bgcolor: SEARCH_BAR_COLOR,
+              borderRadius: '100px',
+              padding: '14px 38px 14px 20px',
+              fontFamily: 'Inter',
+              fontSize: '14px',
+              fontWeight: '400',
             }}
           >
-            <SearchIcon sx={{ color: '#6C5CE7', mr: 1 }} />
+            <img 
+              src={searchIcon} 
+              alt="search" 
+              style={{ width: '20px', height: '20px', objectFit: 'contain' }} 
+            />
             <InputBase
+              sx={{
+                fontFamily: 'Inter',
+                fontSize: '14px',
+                fontWeight: '400',
+                paddingLeft: '10px',
+              }}
               placeholder="Search for interests"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -136,51 +165,62 @@ const IndustriesSelection = () => {
         </Box>
 
         {/* Main Content */}
-        <Box sx={{ padding: '0 24px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <Box sx={{ padding: '0 24px', display: 'flex', flexDirection: 'column' }}>
           <Box>
-            <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold', marginBottom: 1 }}>
-              Customise Your News Feed ⭐
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Typography component="h1" sx={{ fontWeight: '900', fontSize: '24px', fontFamily: 'Times'}}>
+                Customise Your News Feed
+              </Typography>
+            </Box>
+            <Typography sx={{ fontWeight: '400', fontSize: '12px', fontFamily: 'Inter',color: GREY_COLOR, paddingTop: '16px' ,paddingBottom: '24px'}}>
               Choose atleast 3 interests to get started
             </Typography>
           </Box>
 
           {/* Industries List */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', }}>
             {filteredIndustries.map((industry) => (
               <Box key={industry.id}>
+                <Box sx={{ display: 'block', flexDirection: 'column', width:"100%",height:"1px", backgroundColor: LINE_COLOR, padding:"0px",}}/>
                 {/* Industry Header */}
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                  <img 
-                    src={failedImages.has(industry.name) ? 
-                      '/default-industry-icon.png' : 
-                      getIndustryIconPath(industry.name)
-                    }
-                    alt={industry.name}
-                    style={{ width: '24px', height: '24px' }}
-                    onError={() => handleImageError(industry.name)}
-                  />
-                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', padding:"24px 0px" }}>
+                  <Box sx={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '100%',
+                    border:"1px solid #EBE9FF",
+                    padding:"8px",
+                    marginRight:"10px",
+                    backgroundColor:"#FFFFFD",
+                    boxShadow: `0px 5px 5px ${LIGHT_GREY_COLOR}` }}
+                  >
+                    <Factory sx={{ color: '#EAB308', fontWeight: '600', fontSize: '14px' }} />
+                  </Box>
+                  <Typography sx={{ fontWeight: '600', fontSize: '16px', fontFamily: 'Inter' }}>
                     {industry.name}
                   </Typography>
                 </Box>
 
                 {/* Sub Industries */}
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', paddingBottom:"24px", gap:"16px" }}>
                   {industry.subIndustries.map((subIndustry) => (
                     <Chip
                       key={subIndustry}
-                      label={subIndustry}
+                      label={capitalizeWords(subIndustry)}
                       onClick={() => handleSubIndustryToggle(subIndustry)}
                       sx={{
-                        borderRadius: '20px',
-                        backgroundColor: selectedSubIndustries.includes(subIndustry) ? '#EBE9FF' : '#F8F9FE',
+                        borderRadius: '30px',
+                        fontSize: '12px',
+                        fontWeight: '400',
+                        fontFamily: 'Inter',
+                        padding: '16px 12px',
+                        backgroundColor: selectedSubIndustries.includes(subIndustry) ? PRIMARY_LIGHT_COLOR : LIGHT_GREY_COLOR,
                         border: '1px solid',
-                        borderColor: selectedSubIndustries.includes(subIndustry) ? '#6C5CE7' : 'transparent',
-                        color: selectedSubIndustries.includes(subIndustry) ? '#6C5CE7' : 'text.primary',
+                        borderColor: selectedSubIndustries.includes(subIndustry) ? PRIMARY_COLOR_BORDER : 'transparent',
+                        color: selectedSubIndustries.includes(subIndustry) ? DARK_GREY_COLOR : DARK_GREY_COLOR,
                         '&:hover': {
-                          backgroundColor: selectedSubIndustries.includes(subIndustry) ? '#EBE9FF' : '#F8F9FE',
+                          backgroundColor: selectedSubIndustries.includes(subIndustry) ? PRIMARY_LIGHT_COLOR :  LIGHT_GREY_COLOR,
                         },
                       }}
                     />
@@ -193,34 +233,31 @@ const IndustriesSelection = () => {
       </Box>
 
       {/* Get News Button - Sticky */}
-      <Box sx={{ 
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        padding: '16px 24px',
-        backgroundColor: 'white',
-        borderTop: '1px solid rgba(0, 0, 0, 0.05)',
-        zIndex: 1000,
-      }}>
+      
         <Button
-          fullWidth
-          variant="contained"
-          size="large"
           onClick={handleGetNews}
           disabled={selectedSubIndustries.length < 3}
           sx={{
+            position: 'fixed',
+            bottom: 20,
+            width: '80%',
+            left: '10%',
+            maxWidth: '312px',
             borderRadius: 28,
-            backgroundColor: '#6C5CE7',
-            py: 1.5,
-            '&:hover': {
-              backgroundColor: '#5849c4',
-            },
+            border: '1px solid',
+            borderColor: selectedSubIndustries.length < 3 ? '#EBE9FF' : PRIMARY_COLOR,
+            backgroundColor: selectedSubIndustries.length < 3 ? LIGHT_GREY_COLOR : PRIMARY_COLOR,
+            zIndex: 1000,
+            fontSize: '16px',
+            fontWeight: '600',
+            fontFamily: 'Inter',
+            color: 'white',
+            padding: '15px 0px',
+
           }}
         >
           GET NEWS
         </Button>
-      </Box>
     </Box>
   );
 };

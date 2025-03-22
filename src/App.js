@@ -36,9 +36,9 @@ function App() {
               <Routes>
                 <Route path="/splash" element={<Splash />} />
                 <Route path="/language-selection" element={<LanguageSelection />} />
+                <Route path="/customize-feed" element={<IndustriesSelection />} />
                 <Route path="/fetching-news" element={<FetchingNews />} />
                 <Route path="/article-view" element={<ArticleView />} />
-                <Route path="/customize-feed" element={<IndustriesSelection />} />
                 <Route path="/" element={<Navigate to="/splash" replace />} />
               </Routes>
             </ThemeProvider>

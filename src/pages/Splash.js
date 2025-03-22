@@ -1,13 +1,15 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import home_backdrop from '../assets/home_backdrop.png';
+import logo from '../assets/logo_v2.png';
 
 export default function BuzzarBriefSplash() {
     const navigate = useNavigate();
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            navigate('/language-selection');
-        }, 2000); // 2000 milliseconds = 5 seconds
+            navigate('/customize-feed');
+        }, 2000); // 2000 milliseconds = 2 seconds
 
         return () => clearTimeout(timer); // Cleanup timer on component unmount
     }, [navigate]);
@@ -15,27 +17,30 @@ export default function BuzzarBriefSplash() {
     // Define styles directly in the component
     const styles = {
       container: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "100vh",
-        backgroundColor: "#5D4FFF",
-        margin: 0,
-        padding: 0,
+        height: "100vh",
+        width: "100%",
         fontFamily: "Arial, sans-serif",
+        backgroundImage: `url(${home_backdrop})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
       },
       content: {
         textAlign: "center",
       },
       logoContainer: {
+        width: "200px",
+        marginBottom: "10px",
+        left: "-2px",
         display: "flex",
-        justifyContent: "center",
-        marginBottom: "1rem",
+        position: "relative",
       },
       logo: {
-        width: "80px",
-        height: "80px",
-        objectFit: "contain",
+        width: "100%",
+        height: "100%",
       },
       title: {
         fontSize: "3rem",
@@ -47,28 +52,19 @@ export default function BuzzarBriefSplash() {
         textTransform: "uppercase",
       },
       taglineContainer: {
-        marginTop: "1rem",
+        position: "absolute",
+        top: "140%",
+        padding: "5px",
+        left: "50%",
         color: "white",
-        fontSize: "0.875rem",
-        fontWeight: "300",
-      },
-      taglineWrapper: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      },
-      line: {
-        width: "2.5rem",
-        height: "1px",
-        backgroundColor: "white",
-      },
-      lineLeft: {
-        marginRight: "0.75rem",
-      },
-      lineRight: {
-        marginLeft: "0.75rem",
-      },
-      tagline: {
+        fontFamily: "Poppins",
+        transform: "translate(-50%, -50%)",
+        border: "0.5px solid white",
+        borderRadius: "80px",
+        fontSize: "10.52px",
+        letterSpacing: "0.88px",
+        width: "198px",
+        fontWeight: "400",
         fontStyle: "italic",
       },
     }
@@ -77,24 +73,12 @@ export default function BuzzarBriefSplash() {
       <div style={styles.container}>
         <div style={styles.content}>
           <div style={styles.logoContainer}>
-            {/* Using the logo from public folder */}
-            <img src="/splash_screen_logo.png" alt="Buzzar Brief Logo" style={styles.logo} />
-          </div>
-          <h1 style={styles.title}>
-            BUZZAR
-            <br />
-            BRIEF
-          </h1>
-          <div style={styles.taglineContainer}>
-            <div style={styles.taglineWrapper}>
-              <div style={{ ...styles.line, ...styles.lineLeft }}></div>
-              <p style={styles.tagline}>Business ki Batein Brief me</p>
-              <div style={{ ...styles.line, ...styles.lineRight }}></div>
+            <img src={logo} alt="Buzzar Brief Logo" style={styles.logo} />
+            <div style={styles.taglineContainer}>
+              Business ki Batein Brief me
             </div>
           </div>
         </div>
       </div>
     )
 }
-  
-  

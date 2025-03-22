@@ -7,7 +7,7 @@ import {
   CircularProgress,
   Stack,
   InputBase,
-  Chip
+  Chip,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ShareIcon from '@mui/icons-material/Share';
