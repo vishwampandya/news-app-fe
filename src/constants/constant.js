@@ -6,5 +6,7 @@ export const SEARCH_BAR_COLOR = '#EFF6FF';
 export const GREY_COLOR = '#6D7280';
 export const LINE_COLOR = '#DBEAFE';
 export const DARK_GREY_COLOR = '#1F2937';
+export const MEDIUM_GREY_COLOR = '#9CA3AF';
 export const LIGHT_GREY_COLOR = '#F3F4F6';
-
+export const MEDIUM_DARK_DARK_GREY_COLOR = '#111827';
+export const MEDIUM_DARK_GREY_COLOR = '#4B5563';

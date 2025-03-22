@@ -17,13 +17,14 @@ import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSwipeable } from 'react-swipeable';
 import { fetchArticles } from '../services/api';
-import { PRIMARY_COLOR } from '../constants/constant';
+import { MEDIUM_DARK_DARK_GREY_COLOR, MEDIUM_DARK_GREY_COLOR, MEDIUM_GREY_COLOR, PRIMARY_COLOR } from '../constants/constant';
 import logo from '../assets/logo_v2.png';
 import languageIcon from '../assets/language_v2.svg';
 import bookmarkIcon from '../assets/save.svg';
 import shareIcon from '../assets/share.svg';
 import volumeIcon from '../assets/sound.svg';
 import linkIcon from '../assets/link.svg';
+import { Book, MenuBookRounded } from '@mui/icons-material';
 
 // Placeholder image for articles without images
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80';
@@ -136,7 +137,7 @@ const ArticleView = () => {
   const prevArticle = articles[activeStep - 1];
 
   return (
-    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: 'white' }}>
+    <Box sx={{ height: '100vh',position: 'relative', maxWidth: '500px', display: 'flex', flexDirection: 'column', bgcolor: 'white' }}>
       {/* Header */}
       <Box sx={{ 
             bgcolor: PRIMARY_COLOR,
@@ -163,7 +164,7 @@ const ArticleView = () => {
       </Box>
 
       {/* Articles Container */}
-      <Box sx={{ position: 'absolute', top: 50, left: 0, right: 0, bottom: 0 , overflow: 'hidden' }}>
+      <Box sx={{ position: 'absolute', top: 95, left: 0, right: 0, bottom: 0 , overflow: 'hidden' }}>
         {/* All articles stacked on top of each other with proper z-index */}
         
         {/* Previous Article - comes from top when swiping down */}
@@ -237,23 +238,19 @@ const ArticleCard = ({ article, handlers = {}, sx = {} }) => (
       height: '100%',
       overflow: 'auto',
       bgcolor: 'white',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
       ...sx
     }}
   >
     {/* Article Image */}
     <Box sx={{
       width: '100%',
-      height: '240px',
-      position: 'relative',
-      '&::after': {
-        content: '""',
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        height: '50%',
-        background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)',
-      }
+      height: '170px',
+      top: '25px',
+      padding: '0px 24px',
+      borderRadius: '12px',
     }}>
       <img 
         src={DEFAULT_IMAGE} 
@@ -261,59 +258,52 @@ const ArticleCard = ({ article, handlers = {}, sx = {} }) => (
         style={{
           width: '100%',
           height: '100%',
-          objectFit: 'cover'
+          objectFit: 'cover',
+          borderRadius: '12px',
         }}
       />
-      {/* Categories on image */}
-      <Box 
-        sx={{ 
-          position: 'absolute', 
-          bottom: 16, 
-          left: 16, 
-          zIndex: 1,
-          display: 'flex',
-          gap: 1
-        }}
-      >
-        {article.categories.map((category) => (
-          <Chip
-            key={category}
-            label={category}
-            size="small"
-            sx={{
-              bgcolor: 'rgba(255, 255, 255, 0.9)',
-              color: PRIMARY_COLOR,
-              fontWeight: 500
-            }}
-          />
-        ))}
-      </Box>
+
     </Box>
 
     {/* Article Content */}
-    <Box sx={{ p: 2 }}>
-      <Box sx={{ display: 'flex', gap: 1, mb: 2, alignItems: 'center' }}>
-        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-          {Math.ceil(article.content.length / 1000)} mins read
-        </Typography>
-        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-          • {new Date(article.published_date).toLocaleDateString()}
-        </Typography>
-        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-          • {article.source}
-        </Typography>
-      </Box>
+    <Box sx={{ padding: '24px' }}>
 
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', lineHeight: 1.4 }}>
+      <Typography  sx={{ color: MEDIUM_DARK_DARK_GREY_COLOR, fontSize: '24px', lineHeight: '32px', fontFamily: 'Times', fontWeight: '700' , }}>
         {article.title}
       </Typography>
+
+      <Box sx={{ marginTop: '8px',display: 'flex', alignItems: 'center', }}>
+        <Typography variant="caption" sx={{ color: MEDIUM_GREY_COLOR, display: 'flex', alignItems: 'center', marginRight: '3px' }}>
+          <MenuBookRounded sx={{  color: MEDIUM_GREY_COLOR,width: '12px', height: '12px',textAlign: 'center',marginBottom: '2px', marginRight: '4px' }}/> 
+          {Math.ceil(article.content.length / 1000)} mins read
+        </Typography>
+        <Typography variant="caption" sx={{  color: MEDIUM_GREY_COLOR }}>
+          • {(() => {
+              const publishDate = new Date(article.published_date);
+              const now = new Date();
+              const diffTime = Math.abs(now - publishDate);
+              const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+              
+              if (diffDays === 0) {
+                // If published today, show the time
+                return `Today ${publishDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+              } else if (diffDays === 1) {
+                return `Yesterday ${publishDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+              } else {
+                return `${diffDays} days ago`;
+              }
+            })()}
+        </Typography>
+      </Box>
 
       <Typography 
         variant="body1" 
         sx={{ 
-          color: 'text.secondary',
-          lineHeight: 1.6,
-          mb: 3
+          color: MEDIUM_DARK_GREY_COLOR,
+          marginTop: '24px',
+          fontSize: '14px',
+          fontFamily: 'Inter',
+          fontWeight: 400,
         }}
       >
         {article.summary || article.content.slice(0, 300) + '...'}
@@ -321,7 +311,7 @@ const ArticleCard = ({ article, handlers = {}, sx = {} }) => (
 
 
       {/* Action Buttons */}
-      <Box sx={{ position: 'absolute', left: 0, right: 0, bottom: 0, display: 'flex', padding: '16px', alignItems: 'center', justifyContent: 'space-between' }}>
+      <Box sx={{ position: 'absolute', left: 0, right: 0, bottom: 0, display: 'flex', padding: '20px 26px', alignItems: 'center', justifyContent: 'space-between' }}>
         {/* Read More Link */}
         <Box sx={{ padding: '8px 16px', borderRadius: '30px',border: `1px solid ${PRIMARY_COLOR}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '125px' }}
          onClick={() => window.open(article.url, '_blank')} >
