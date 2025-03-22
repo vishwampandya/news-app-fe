@@ -66,8 +66,9 @@ const IndustriesSelection = () => {
 
     // Create URL parameters
     const params = new URLSearchParams({
+      q: searchQuery,
       industries: Array.from(selectedIndustriesMap.keys()).join(','),
-      keywords: selectedSubIndustries.join(',')
+      keywords: selectedSubIndustries.join(','),
     });
 
     // Navigate to fetching-news with these parameters
@@ -78,10 +79,9 @@ const IndustriesSelection = () => {
     setFailedImages(prev => new Set([...prev, industryName]));
   };
 
-  const filteredIndustries = industries.filter(industry => 
-    industry.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    industry.subIndustries.some(sub => sub.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredIndustries = industries.filter(industry => {
+    return industry
+  });
 
   if (loading) {
     return (
@@ -246,7 +246,7 @@ const IndustriesSelection = () => {
       
         <Button
           onClick={handleGetNews}
-          disabled={selectedSubIndustries.length < 3}
+          disabled={selectedSubIndustries.length < 3 && !searchQuery}
           sx={{
             position: 'fixed',
             bottom: 20,
@@ -256,8 +256,8 @@ const IndustriesSelection = () => {
             maxWidth: '312px',
             borderRadius: 28,
             border: '1px solid',
-            borderColor: selectedSubIndustries.length < 3 ? '#EBE9FF' : PRIMARY_COLOR,
-            backgroundColor: selectedSubIndustries.length < 3 ? LIGHT_GREY_COLOR : PRIMARY_COLOR,
+            borderColor: selectedSubIndustries.length < 3 && !searchQuery ? '#EBE9FF' : PRIMARY_COLOR,
+            backgroundColor: selectedSubIndustries.length < 3 && !searchQuery ? LIGHT_GREY_COLOR : PRIMARY_COLOR,
             zIndex: 1000,
             fontSize: '16px',
             fontWeight: '600',

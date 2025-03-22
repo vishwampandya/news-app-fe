@@ -78,7 +78,7 @@ export const fetchArticles = async (params) => {
     console.log('Fetching articles with params:', params);
 
     const queryParams = new URLSearchParams({
-      q: '',
+      q: params.q || '',
       industry: params.industry || '',  // This will be comma-separated industries
       keyword: params.keyword || '',    // This will be comma-separated keywords
       india_focus: params.india_focus || 'true',

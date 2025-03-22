@@ -14,10 +14,12 @@ const FetchingNews = () => {
     const searchParams = new URLSearchParams(location.search);
     const industries = searchParams.get('industries');
     const keywords = searchParams.get('keywords');
+    const query = searchParams.get('q');
 
     const timer = setTimeout(() => {
       // Pass both industries and keywords to article view
       const articleParams = new URLSearchParams({
+        q: query || '',
         industry: industries || '',
         keyword: keywords || '',
         india_focus: 'true',

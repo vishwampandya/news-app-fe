@@ -59,6 +59,7 @@ const ArticleView = () => {
         
         // Get all query parameters
         const params = {
+          q: new URLSearchParams(location.search).get('q'),
           industry: new URLSearchParams(location.search).get('industry'),
           keyword: new URLSearchParams(location.search).get('keyword'),
           india_focus: new URLSearchParams(location.search).get('india_focus'),
@@ -66,7 +67,7 @@ const ArticleView = () => {
         };
 
         const data = await fetchArticles(params);
-        console.log(data);
+
         if (data && data.articles) {
           setArticles(data.articles);
         } else {
@@ -86,7 +87,7 @@ const ArticleView = () => {
   const handlers = useSwipeable({
     onSwiping: (event) => {
       // Only allow swipe up or swipe down if not on first article
-      if (event.dir === 'Up' || (event.dir === 'Down' && activeStep > 0)) {
+      if ((event.dir === 'Up' && activeStep < articles.length - 1) || (event.dir === 'Down' && activeStep > 0)) {
         // Calculate swipe progress (0 to 1)
         const progress = Math.min(Math.abs(event.deltaY) / 200, 1);
         setSwipeProgress(event.dir === 'Up' ? progress : -progress);
@@ -514,8 +515,12 @@ const ArticleCard = ({ article, handlers = {}, sx = {} }) => {
         borderRadius: '12px',
       }}>
         <img 
-          src={article.image_url || DEFAULT_IMAGE}
+          src={article.image_url || DEFAULT_IMAGE} 
           alt={article.title}
+          onError={(e) => {
+            e.target.onerror = null; // Prevent infinite loop
+            e.target.src = DEFAULT_IMAGE;
+          }}
           style={{
             width: '100%',
             height: '100%',
