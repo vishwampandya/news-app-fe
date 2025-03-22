@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://192.168.50.138:8000/api';
+const API_BASE_URL = 'https://e143-49-205-38-42.ngrok-free.app/api';
 const API_KEY = process.env.REACT_APP_API_KEY;
 // const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 
