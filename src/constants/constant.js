@@ -10,3 +10,4 @@ export const MEDIUM_GREY_COLOR = '#9CA3AF';
 export const LIGHT_GREY_COLOR = '#F3F4F6';
 export const MEDIUM_DARK_DARK_GREY_COLOR = '#111827';
 export const MEDIUM_DARK_GREY_COLOR = '#4B5563';
+export const EXPLOSIVE_YELLOW_COLOR = '#FACC15';

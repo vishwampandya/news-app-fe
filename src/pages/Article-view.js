@@ -8,13 +8,14 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSwipeable } from 'react-swipeable';
 import { fetchArticles } from '../services/api';
-import { MEDIUM_DARK_DARK_GREY_COLOR, MEDIUM_DARK_GREY_COLOR, MEDIUM_GREY_COLOR, PRIMARY_COLOR } from '../constants/constant';
+import { EXPLOSIVE_YELLOW_COLOR, MEDIUM_DARK_DARK_GREY_COLOR, MEDIUM_DARK_GREY_COLOR, MEDIUM_GREY_COLOR, PRIMARY_COLOR } from '../constants/constant';
 import logo from '../assets/logo_v2.png';
 import languageIcon from '../assets/language_v2.svg';
 import bookmarkIcon from '../assets/save.svg';
 import shareIcon from '../assets/share.svg';
 import volumeIcon from '../assets/sound.svg';
 import linkIcon from '../assets/link.svg';
+import bellIcon from '../assets/bell_icon.svg';
 import { Book, MenuBookRounded } from '@mui/icons-material';
 
 // Placeholder image for articles without images
@@ -147,11 +148,31 @@ const ArticleView = () => {
           alt="Buzzar Brief Logo" 
           style={{ width: '103px' }} 
         />
-        <img 
-          src={languageIcon} 
-          alt="Language" 
-          style={{ height: '22px', width: '22px', objectFit: 'contain' }} 
-        /> 
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, }}>
+          <Box sx={{
+             display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              backgroundColor: EXPLOSIVE_YELLOW_COLOR,
+              borderRadius: '48px',
+              padding:"5px",
+              paddingRight: '16px',
+              marginRight: '5px',
+              height: '44px'
+            }}>
+            <Box sx={{  borderRadius: '50%', backgroundColor:PRIMARY_COLOR ,width: '34px', height: '34px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img src={bellIcon} alt="bookmark" style={{ width: '20px', height: '20px' }}/>
+            </Box>
+            <Typography variant="caption" sx={{ color: PRIMARY_COLOR, fontSize: '14px', fontFamily: 'Inter', fontWeight: 500 }}>
+              Subscribe
+            </Typography>
+          </Box>
+          <img 
+            src={languageIcon} 
+            alt="Language" 
+            style={{ height: '22px', width: '22px', objectFit: 'contain' }} 
+          />
+        </Box>
       </Box>
 
       {/* Articles Container */}
