@@ -43,11 +43,28 @@ const IndustriesSelection = () => {
   };
 
   const handleGetNews = () => {
-    // Convert selected sub-industries to URL-safe format
-    const selectedIndustriesParam = encodeURIComponent(selectedSubIndustries.join(','));
+    // Get parent industries of selected sub-industries
+    const selectedIndustriesMap = new Map();
     
-    // Navigate to article view with selected industries as query parameters
-    navigate(`/fetching-news?industries=${selectedIndustriesParam}`);
+    industries.forEach(industry => {
+      industry.subIndustries.forEach(subIndustry => {
+        if (selectedSubIndustries.includes(subIndustry)) {
+          if (!selectedIndustriesMap.has(industry.name)) {
+            selectedIndustriesMap.set(industry.name, []);
+          }
+          selectedIndustriesMap.get(industry.name).push(subIndustry);
+        }
+      });
+    });
+
+    // Create URL parameters
+    const params = new URLSearchParams({
+      industries: Array.from(selectedIndustriesMap.keys()).join(','),
+      keywords: selectedSubIndustries.join(',')
+    });
+
+    // Navigate to fetching-news with these parameters
+    navigate(`/fetching-news?${params.toString()}`);
   };
 
   const handleImageError = (industryName) => {

@@ -10,16 +10,17 @@ const FetchingNews = () => {
   React.useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const industries = searchParams.get('industries');
+    const keywords = searchParams.get('keywords');
 
     const timer = setTimeout(() => {
-      // Pass the industries as a single string
-      const params = new URLSearchParams({
+      // Pass both industries and keywords to article view
+      const articleParams = new URLSearchParams({
         industry: industries || '',
-        keyword: 'startup',
+        keyword: keywords || '',
         india_focus: 'true',
         business_only: 'true'
       });
-      navigate(`/article-view?${params.toString()}`);
+      navigate(`/article-view?${articleParams.toString()}`);
     }, 3000);
 
     return () => clearTimeout(timer);

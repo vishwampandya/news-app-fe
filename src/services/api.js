@@ -75,13 +75,12 @@ export const fetchIndustries = async () => {
 
 export const fetchArticles = async (params) => {
   try {
-    // Log the incoming parameters
     console.log('Fetching articles with params:', params);
 
     const queryParams = new URLSearchParams({
-      q: '',  // Add empty q parameter as shown in your curl example
-      industry: params.industry || '',
-      keyword: params.keyword || 'startup',
+      q: '',
+      industry: params.industry || '',  // This will be comma-separated industries
+      keyword: params.keyword || '',    // This will be comma-separated keywords
       india_focus: params.india_focus || 'true',
       business_only: params.business_only || 'true',
       page: '1',
@@ -91,7 +90,7 @@ export const fetchArticles = async (params) => {
     });
 
     const url = `${API_BASE_URL}/news/search?${queryParams.toString()}`;
-    console.log('Making request to:', url); // Debug log
+    console.log('Making request to:', url);
     
     const response = await fetch(url, {
       method: 'GET',
