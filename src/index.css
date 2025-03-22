@@ -5,6 +5,7 @@ html, body {
   width: 100vw;
   left: 0;
   right: 0;
+  overscroll-behavior-y: contain;
 }
 
 body {
