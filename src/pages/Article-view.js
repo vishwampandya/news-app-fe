@@ -16,6 +16,7 @@ import shareIcon from '../assets/share.svg';
 import volumeIcon from '../assets/sound.svg';
 import linkIcon from '../assets/link.svg';
 import { Book, MenuBookRounded } from '@mui/icons-material';
+import { useSpring, animated, to } from '@react-spring/web';
 
 // Placeholder image for articles without images
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80';
@@ -29,6 +30,28 @@ const ArticleView = () => {
   const [isAnimating, setIsAnimating] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Move springs before any conditional returns
+  const currentSpring = useSpring({
+    y: swipeProgress > 0 ? -swipeProgress * 100 : swipeProgress < 0 ? Math.abs(swipeProgress) * 100 : 0,
+    opacity: 1,
+    immediate: !isAnimating,
+    config: { tension: 300, friction: 30 }
+  });
+
+  const nextSpring = useSpring({
+    y: swipeProgress > 0 ? 15 - swipeProgress * 100 : 15,
+    opacity: activeStep < articles.length - 1 ? (swipeProgress > 0 ? 1 : 0.7) : 0,
+    immediate: !isAnimating,
+    config: { tension: 300, friction: 30 }
+  });
+
+  const prevSpring = useSpring({
+    y: swipeProgress < 0 ? -15 + Math.abs(swipeProgress) * 100 : -15,
+    opacity: activeStep > 0 ? (swipeProgress < 0 ? 1 : 0.7) : 0,
+    immediate: !isAnimating,
+    config: { tension: 300, friction: 30 }
+  });
 
   useEffect(() => {
     const loadArticles = async () => {
@@ -64,15 +87,13 @@ const ArticleView = () => {
 
   const handlers = useSwipeable({
     onSwiping: (event) => {
-      // Only allow swipe up or swipe down if not on first article
       if (event.dir === 'Up' || (event.dir === 'Down' && activeStep > 0)) {
-        // Calculate swipe progress (0 to 1)
         const progress = Math.min(Math.abs(event.deltaY) / 200, 1);
         setSwipeProgress(event.dir === 'Up' ? progress : -progress);
       }
     },
     onSwipedUp: () => {
-      if (activeStep < articles.length - 1 && swipeProgress > 0.5) {
+      if (activeStep < articles.length - 1 && swipeProgress > 0.15) {
         setIsAnimating(true);
         setSwipeProgress(1);
         setTimeout(() => {
@@ -85,7 +106,7 @@ const ArticleView = () => {
       }
     },
     onSwipedDown: () => {
-      if (activeStep > 0 && swipeProgress < -0.5) {
+      if (activeStep > 0 && swipeProgress < -0.15) {
         setIsAnimating(true);
         setSwipeProgress(-1);
         setTimeout(() => {
@@ -97,14 +118,11 @@ const ArticleView = () => {
         setSwipeProgress(0);
       }
     },
-    onTouchEndOrOnMouseUp: () => {
-      if (Math.abs(swipeProgress) <= 0.5) {
-        setSwipeProgress(0);
-      }
-    },
     preventDefaultTouchmoveEvent: true,
     trackMouse: true,
-    delta: 10
+    delta: 5,
+    swipeDuration: 250,
+    touchEventOptions: { passive: false }
   });
 
   if (loading) {
@@ -155,67 +173,79 @@ const ArticleView = () => {
       </Box>
 
       {/* Articles Container */}
-      <Box sx={{ position: 'absolute', top: 95, left: 0, right: 0, bottom: 0 , overflow: 'hidden' }}>
-        {/* All articles stacked on top of each other with proper z-index */}
-        
-        {/* Previous Article - comes from top when swiping down */}
-        {prevArticle && (
-          <ArticleCard
-            article={prevArticle}
-            sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '100%',
-              // Start at -100% (above viewport) and move down when swiping down
-              transform: `translateY(${swipeProgress < 0 ? -100 + Math.abs(swipeProgress) * 100 : -100}%)`,
-              // Fade in when swiping down
-              opacity: swipeProgress < 0 ? Math.abs(swipeProgress) : 0,
-              transition: isAnimating ? 'transform 0.3s ease-out, opacity 0.3s ease-out' : 'none',
-              zIndex: 3
-            }}
-          />
-        )}
-
-        {/* Current Article */}
-        <ArticleCard
-          article={currentArticle}
-          handlers={handlers}
-          sx={{
+      <Box sx={{ position: 'absolute', top: 95, left: 0, right: 0, bottom: 0, overflow: 'hidden', bgcolor: '#f5f5f5' }}>
+        {/* Previous Article */}
+        <animated.div
+          style={{
             position: 'absolute',
             top: 0,
             left: 0,
             right: 0,
             height: '100%',
-            // When swiping up: move up; when swiping down: stay in place
-            transform: `translateY(${swipeProgress > 0 ? -swipeProgress * 50 : 0}%)`,
-            // Fade out in both directions
-            opacity: 1 - Math.abs(swipeProgress),
-            transition: isAnimating ? 'transform 0.3s ease-out, opacity 0.3s ease-out' : 'none',
-            zIndex: 2
+            zIndex: 1,
+            transform: prevSpring.y.to(y => `translateY(${y}%)`),
+            opacity: prevSpring.opacity,
+            pointerEvents: prevArticle ? 'auto' : 'none'
           }}
-        />
+        >
+          {prevArticle && (
+            <ArticleCard
+              article={prevArticle}
+              sx={{
+                margin: '0 8px',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+              }}
+            />
+          )}
+        </animated.div>
 
-        {/* Next Article - starts below and fades in when swiping up */}
-        {nextArticle && (
+        {/* Current Article */}
+        <animated.div
+          {...handlers}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '100%',
+            zIndex: 2,
+            transform: currentSpring.y.to(y => `translateY(${y}%)`),
+            opacity: currentSpring.opacity
+          }}
+        >
           <ArticleCard
-            article={nextArticle}
+            article={currentArticle}
             sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '100%',
-              // Always positioned underneath, move up slightly when being revealed
-              transform: `translateY(${swipeProgress > 0 ? 50 - swipeProgress * 50 : 50}%)`,
-              // Fade in when swiping up
-              opacity: swipeProgress > 0 ? swipeProgress : 0,
-              transition: isAnimating ? 'transform 0.3s ease-out, opacity 0.3s ease-out' : 'none',
-              zIndex: 1
+              margin: '0 8px',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
             }}
           />
-        )}
+        </animated.div>
+
+        {/* Next Article */}
+        <animated.div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '100%',
+            zIndex: 1,
+            transform: nextSpring.y.to(y => `translateY(${y}%)`),
+            opacity: nextSpring.opacity,
+            pointerEvents: nextArticle ? 'auto' : 'none'
+          }}
+        >
+          {nextArticle && (
+            <ArticleCard
+              article={nextArticle}
+              sx={{
+                margin: '0 8px',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+              }}
+            />
+          )}
+        </animated.div>
       </Box>
     </Box>
   );
@@ -232,6 +262,17 @@ const ArticleCard = ({ article, handlers = {}, sx = {} }) => (
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
+      borderRadius: '16px',
+      WebkitOverflowScrolling: 'touch',
+      scrollBehavior: 'smooth',
+      '&::-webkit-scrollbar': { display: 'none' },
+      msOverflowStyle: 'none',
+      scrollbarWidth: 'none',
+      willChange: 'transform',
+      transform: 'translate3d(0,0,0)',
+      backfaceVisibility: 'hidden',
+      perspective: 1000,
+      border: '1px solid rgba(0,0,0,0.05)',
       ...sx
     }}
   >
