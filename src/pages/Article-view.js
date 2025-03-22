@@ -4,11 +4,12 @@ import {
   Typography, 
   CircularProgress,
   Chip,
+  InputBase,
 } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSwipeable } from 'react-swipeable';
-import { fetchArticles } from '../services/api';
-import { EXPLOSIVE_YELLOW_COLOR, MEDIUM_DARK_DARK_GREY_COLOR, MEDIUM_DARK_GREY_COLOR, MEDIUM_GREY_COLOR, PRIMARY_COLOR } from '../constants/constant';
+import { fetchArticles, subscribeNewsletter } from '../services/api';
+import { EXPLOSIVE_YELLOW_COLOR, LIGHT_MEDIUM_BLUE_COLOR, LINE_COLOR, MEDIUM_DARK_DARK_GREY_COLOR, MEDIUM_DARK_GREY_COLOR, MEDIUM_GREY_COLOR, PRIMARY_COLOR } from '../constants/constant';
 import logo from '../assets/logo_v2.png';
 import languageIcon from '../assets/language_v2.svg';
 import bookmarkIcon from '../assets/save.svg';
@@ -28,8 +29,17 @@ const ArticleView = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [swipeProgress, setSwipeProgress] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+
+  const toggleBottomSheet = () => {
+    setIsBottomSheetOpen(!isBottomSheetOpen);
+  };
 
   useEffect(() => {
     const loadArticles = async () => {
@@ -108,6 +118,33 @@ const ArticleView = () => {
     delta: 10
   });
 
+  const handleSubscribe = async () => {
+    if (!phoneNumber || phoneNumber.length < 10) {
+      alert('Please enter a valid phone number');
+      return;
+    }
+    
+    try {
+      setIsSubscribing(true);
+      const data = await subscribeNewsletter({mobile_number: phoneNumber, is_subscribed: true});
+      console.log(data);
+      setPhoneNumber('');
+      setIsBottomSheetOpen(false);
+      setIsSubscribed(true);
+      setShowSuccessModal(true);
+      
+      // Auto-hide success modal after 3 seconds
+      setTimeout(() => {
+        setShowSuccessModal(false);
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Error subscribing to newsletter:', error);
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
@@ -149,24 +186,30 @@ const ArticleView = () => {
           style={{ width: '103px' }} 
         />
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, }}>
-          <Box sx={{
-             display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-              backgroundColor: EXPLOSIVE_YELLOW_COLOR,
-              borderRadius: '48px',
-              padding:"5px",
-              paddingRight: '16px',
-              marginRight: '5px',
-              height: '44px'
-            }}>
-            <Box sx={{  borderRadius: '50%', backgroundColor:PRIMARY_COLOR ,width: '34px', height: '34px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <img src={bellIcon} alt="bookmark" style={{ width: '20px', height: '20px' }}/>
+          {!isSubscribed && (
+            <Box 
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                backgroundColor: EXPLOSIVE_YELLOW_COLOR,
+                borderRadius: '48px',
+                padding:"5px",
+                paddingRight: '16px',
+                marginRight: '5px',
+                height: '44px',
+                cursor: 'pointer'
+              }}
+              onClick={toggleBottomSheet}
+            >
+              <Box sx={{  borderRadius: '50%', backgroundColor:PRIMARY_COLOR ,width: '34px', height: '34px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <img src={bellIcon} alt="bookmark" style={{ width: '20px', height: '20px' }}/>
+              </Box>
+              <Typography variant="caption" sx={{ color: PRIMARY_COLOR, fontSize: '14px', fontFamily: 'Inter', fontWeight: 500 }}>
+                Subscribe
+              </Typography>
             </Box>
-            <Typography variant="caption" sx={{ color: PRIMARY_COLOR, fontSize: '14px', fontFamily: 'Inter', fontWeight: 500 }}>
-              Subscribe
-            </Typography>
-          </Box>
+          )}
           <img 
             src={languageIcon} 
             alt="Language" 
@@ -238,6 +281,180 @@ const ArticleView = () => {
           />
         )}
       </Box>
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <Box
+          sx={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 2000,
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)',
+            maxWidth: '300px',
+            width: '80%',
+            textAlign: 'center',
+            padding: '50px',
+          }}
+        >
+          <Box
+            sx={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 16px',
+              border: `1px solid ${PRIMARY_COLOR}`
+            }}
+          >
+            <Box
+              sx={{
+                width: '60px',
+                height: '60px',
+                borderRadius: '50%',
+                backgroundColor: PRIMARY_COLOR,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="white"/>
+              </svg>
+            </Box>
+          </Box>
+          <Typography sx={{ fontFamily: 'Times', fontWeight: 600, fontSize: '24px', marginBottom: '8px' }}>
+            Subscribed!
+          </Typography>
+          <Typography sx={{ fontFamily: 'Inter', fontWeight: 400, fontSize: '14px' }}>
+            You have successfully subscribed to our newsletter
+          </Typography>
+        </Box>
+      )}
+
+      {/* Backdrop for success modal */}
+      {showSuccessModal && (
+        <Box
+          onClick={() => setShowSuccessModal(false)}
+          sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 1999,
+          }}
+        />
+      )}
+      
+      {/* Bottom Sheet Component */}
+      <BottomSheet open={isBottomSheetOpen} onClose={() => setIsBottomSheetOpen(false)}>
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginTop: '34px' }}>
+            <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '34px' }}>
+              <Box sx={{  borderRadius: '50%',
+                  width: '62px',
+                  height: '62px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: `0.5px solid ${PRIMARY_COLOR}`
+                }}>
+                <Box sx={{ 
+                    backgroundColor:PRIMARY_COLOR,
+                    borderRadius: '50%',
+                    width: '56px',
+                    height: '56px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                  <img src={bellIcon} alt="bookmark" style={{ width: '28px', height: '28px' }}/>
+                </Box>
+              </Box>
+              <Typography sx={{ fontFamily: 'Times', fontWeight: 600, fontSize: '24px', marginTop: '16px' }}>
+                Subscribe to Newsletter
+              </Typography>
+              <Typography sx={{ fontFamily: 'Inter', fontWeight: 400, fontSize: '12px', marginTop: '16px', maxWidth: '280px', textAlign: 'center' }}>
+                Please enter Whatsapp Mobile number to get latest Business News
+              </Typography>
+            </Box>
+          </Box>
+          <Box sx={{ display: 'block',maxWidth: '321px', flexDirection: 'column', width:"100%",height:"1px", backgroundColor: LINE_COLOR, padding:"0px",}}/>
+          <Box sx={{ width: '100%',maxWidth: '321px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
+            <Typography sx={{ fontFamily: 'Inter', width:"100%",marginLeft:"-40px", fontWeight: 400, fontSize: '12px', marginTop: '31px',marginBottom:"16px", maxWidth: '280px', textAlign: 'left' }}>
+              Mobile Number
+            </Typography>
+            <Box 
+              sx={{ 
+                width: '100%', 
+                border: `1px solid ${LIGHT_MEDIUM_BLUE_COLOR}`,
+                borderRadius: '12px',
+                padding: '4px 16px',
+                marginBottom: '32px',
+                backgroundColor: LINE_COLOR,
+              }}
+            >
+              <InputBase
+                fullWidth
+                placeholder="Enter your WhatsApp number"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                type="tel"
+                inputProps={{ 
+                  maxLength: 15,
+                  pattern: '[0-9]*' 
+                }}
+                
+                style={{ 
+                  fontFamily: 'Inter',
+                  fontSize: '14px',
+                  color: MEDIUM_DARK_GREY_COLOR,
+                  height: '48px',
+                  backgroundColor: LINE_COLOR,
+                  borderRadius: '12px',
+                }}
+              />
+            </Box>
+            
+            <Box
+              onClick={!isSubscribing ? handleSubscribe : undefined}
+              sx={{
+                width: '100%',
+                backgroundColor: PRIMARY_COLOR,
+                borderRadius: '48px',
+                padding: '14px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                cursor: isSubscribing ? 'default' : 'pointer',
+                opacity: isSubscribing ? 0.8 : 1,
+                transition: 'opacity 0.2s ease'
+              }}
+            >
+              {isSubscribing ? (
+                <CircularProgress size={24} sx={{ color: 'white' }} />
+              ) : (
+                <Typography sx={{ 
+                  color: 'white', 
+                  fontFamily: 'Inter', 
+                  fontWeight: 500,
+                  fontSize: '16px'
+                }}>
+                  Subscribe Now
+                </Typography>
+              )}
+            </Box>
+          </Box>
+        </Box>
+        
+      </BottomSheet>
     </Box>
   );
 };
@@ -358,5 +575,52 @@ const ArticleCard = ({ article, handlers = {}, sx = {} }) => (
     </Box>
   </Box>
 );
+
+// Bottom Sheet Component
+const BottomSheet = ({ open, onClose, children }) => {
+  return (
+    <>
+      {/* Transparent backdrop - always rendered but with opacity transition */}
+      <Box
+        onClick={onClose}
+        sx={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          zIndex: 1200,
+          opacity: open ? 1 : 0,
+          visibility: open ? 'visible' : 'hidden',
+          transition: 'opacity 0.3s ease, visibility 0.3s ease',
+          pointerEvents: open ? 'auto' : 'none',
+        }}
+      />
+      {/* Bottom sheet content - always rendered with transform transition */}
+      <Box
+        sx={{
+          position: 'fixed',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'white',
+          borderTopLeftRadius: '16px',
+          borderTopRightRadius: '16px',
+          padding: '24px',
+          paddingTop: '16px',
+          zIndex: 1300,
+          transform: open ? 'translateY(0)' : 'translateY(100%)',
+          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          maxWidth: '500px',
+          margin: '0 auto',
+          boxShadow: '0px -4px 10px rgba(0, 0, 0, 0.1)',
+        }}
+      >
+        {children}
+      </Box>
+    </>
+  );
+};
 
 export default ArticleView;

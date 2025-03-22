@@ -115,4 +115,40 @@ export const fetchArticles = async (params) => {
     console.error('Error fetching articles:', error);
     throw error;
   }
+};
+
+export const subscribeNewsletter = async (params) => {
+  try {
+    console.log('Subscribing to newsletter with params:', params);
+
+    const url = `${API_BASE_URL}/users/subscriptions`;
+    console.log('Making request to:', url);
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'X-API-KEY': API_KEY,
+        'Content-Type': 'application/json',
+        'Origin': 'http://192.168.50.117:3000'
+      },
+      body: JSON.stringify({
+        mobile_number: params.mobile_number || '',
+        is_subscribed: true
+      }),
+      mode: 'cors'
+    });
+
+    if (!response.ok) {
+      console.error('Response status:', response.status);
+      throw new Error(`Failed to subscribe: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('Subscription response:', data);
+    return data;
+    
+  } catch (error) {
+    console.error('Error subscribing to newsletter:', error);
+    throw error;
+  }
 }; 
