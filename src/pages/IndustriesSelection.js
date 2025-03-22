@@ -85,8 +85,33 @@ const IndustriesSelection = () => {
 
   if (loading) {
     return (
-      <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <CircularProgress sx={{ color: '#6C5CE7' }} />
+      <Box sx={{
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        bgcolor: 'white',
+        width: '100%',
+      }}>
+        <Box sx={{ width: '90%', height: '170px', borderRadius: '12px', animation: 'shimmer 1.5s infinite linear', background: 'linear-gradient(to right, #f0f0f0 4%, #e0e0e0 25%, #f0f0f0 36%)', backgroundSize: '1000px 100%' }} />
+        <Box sx={{ width: '90%', mt: 3 }}>
+          <Box sx={{ width: '100%', height: '24px', borderRadius: '4px', animation: 'shimmer 1.5s infinite linear', background: 'linear-gradient(to right, #f0f0f0 4%, #e0e0e0 25%, #f0f0f0 36%)', backgroundSize: '1000px 100%' }} />
+          <Box sx={{ width: '100%', height: '16px', borderRadius: '4px', mt: 1, animation: 'shimmer 1.5s infinite linear', background: 'linear-gradient(to right, #f0f0f0 4%, #e0e0e0 25%, #f0f0f0 36%)', backgroundSize: '1000px 100%' }} />
+          <Box sx={{ width: '100%', height: '16px', borderRadius: '4px', mt: 3, animation: 'shimmer 1.5s infinite linear', background: 'linear-gradient(to right, #f0f0f0 4%, #e0e0e0 25%, #f0f0f0 36%)', backgroundSize: '1000px 100%' }} />
+          <Box sx={{ width: '100%', height: '16px', borderRadius: '4px', mt: 3, animation: 'shimmer 1.5s infinite linear', background: 'linear-gradient(to right, #f0f0f0 4%, #e0e0e0 25%, #f0f0f0 36%)', backgroundSize: '1000px 100%' }} />
+          <Box sx={{ width: '100%', height: '16px', borderRadius: '4px', mt: 3, animation: 'shimmer 1.5s infinite linear', background: 'linear-gradient(to right, #f0f0f0 4%, #e0e0e0 25%, #f0f0f0 36%)', backgroundSize: '1000px 100%' }} />
+          <Box sx={{ width: '100%', height: '16px', borderRadius: '4px', mt: 3, animation: 'shimmer 1.5s infinite linear', background: 'linear-gradient(to right, #f0f0f0 4%, #e0e0e0 25%, #f0f0f0 36%)', backgroundSize: '1000px 100%' }} />
+          <Box sx={{ width: '100%', height: '16px', borderRadius: '4px', mt: 3, animation: 'shimmer 1.5s infinite linear', background: 'linear-gradient(to right, #f0f0f0 4%, #e0e0e0 25%, #f0f0f0 36%)', backgroundSize: '1000px 100%' }} />
+          <Box sx={{ width: '100%', height: '16px', borderRadius: '4px', mt: 1, animation: 'shimmer 1.5s infinite linear', background: 'linear-gradient(to right, #f0f0f0 4%, #e0e0e0 25%, #f0f0f0 36%)', backgroundSize: '1000px 100%' }} />
+          <Box sx={{ width: '100%', height: '16px', borderRadius: '4px', mt: 1, animation: 'shimmer 1.5s infinite linear', background: 'linear-gradient(to right, #f0f0f0 4%, #e0e0e0 25%, #f0f0f0 36%)', backgroundSize: '1000px 100%' }} />
+          <Box sx={{ width: '100%', height: '16px', borderRadius: '4px', mt: 1, animation: 'shimmer 1.5s infinite linear', background: 'linear-gradient(to right, #f0f0f0 4%, #e0e0e0 25%, #f0f0f0 36%)', backgroundSize: '1000px 100%' }} />
+          <Box sx={{ width: '100%', height: '16px', borderRadius: '4px', mt: 1, animation: 'shimmer 1.5s infinite linear', background: 'linear-gradient(to right, #f0f0f0 4%, #e0e0e0 25%, #f0f0f0 36%)', backgroundSize: '1000px 100%' }} />
+          <Box sx={{ width: '100%', height: '16px', borderRadius: '4px', mt: 1, animation: 'shimmer 1.5s infinite linear', background: 'linear-gradient(to right, #f0f0f0 4%, #e0e0e0 25%, #f0f0f0 36%)', backgroundSize: '1000px 100%' }} />
+          <Box sx={{ width: '100%', height: '16px', borderRadius: '4px', mt: 1, animation: 'shimmer 1.5s infinite linear', background: 'linear-gradient(to right, #f0f0f0 4%, #e0e0e0 25%, #f0f0f0 36%)', backgroundSize: '1000px 100%' }} />
+          <Box sx={{ width: '100%', height: '16px', borderRadius: '4px', mt: 1, animation: 'shimmer 1.5s infinite linear', background: 'linear-gradient(to right, #f0f0f0 4%, #e0e0e0 25%, #f0f0f0 36%)', backgroundSize: '1000px 100%' }} />
+          <Box sx={{ width: '100%', height: '16px', borderRadius: '4px', mt: 1, animation: 'shimmer 1.5s infinite linear', background: 'linear-gradient(to right, #f0f0f0 4%, #e0e0e0 25%, #f0f0f0 36%)', backgroundSize: '1000px 100%' }} />
+        </Box>
       </Box>
     );
   }
@@ -109,7 +134,7 @@ const IndustriesSelection = () => {
     <Box sx={{ minHeight: '100vh',  display: 'flex', flexDirection: 'column', position: 'relative' }}>
       <Box sx={{ 
             bgcolor: PRIMARY_COLOR,
-            padding: '20px 24px',
+            padding: '16px 24px',
             maxWidth: '500px',
             display: 'flex',
             alignItems: 'center',
@@ -117,7 +142,7 @@ const IndustriesSelection = () => {
             position: 'fixed',
             zIndex: 1000,
             width: '100%',
-            top: 0,
+            top: 5,
           }}>
         <img 
           src={logo} 
