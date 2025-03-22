@@ -4,6 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
 import { fetchIndustries } from '../services/api';
 
+const getIndustryIconPath = (industryName) => {
+  return `/industry-icons/${industryName.toLowerCase().replace(/[^a-z0-9]/g, '')}.png`;
+};
+
 const IndustriesSelection = () => {
   const navigate = useNavigate();
   const [industries, setIndustries] = useState([]);
@@ -11,6 +15,7 @@ const IndustriesSelection = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [failedImages, setFailedImages] = useState(new Set());
 
   useEffect(() => {
     const loadIndustries = async () => {
@@ -39,6 +44,10 @@ const IndustriesSelection = () => {
 
   const handleGetNews = () => {
     navigate('/fetching-news');
+  };
+
+  const handleImageError = (industryName) => {
+    setFailedImages(prev => new Set([...prev, industryName]));
   };
 
   const filteredIndustries = industries.filter(industry => 
@@ -123,10 +132,13 @@ const IndustriesSelection = () => {
                 {/* Industry Header */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                   <img 
-                    src={`/industry-icons/${industry.name.toLowerCase().replace(/[^a-z0-9]/g, '')}.png`}
+                    src={failedImages.has(industry.name) ? 
+                      '/default-industry-icon.png' : 
+                      getIndustryIconPath(industry.name)
+                    }
                     alt={industry.name}
                     style={{ width: '24px', height: '24px' }}
-                    onError={(e) => { e.target.src = '/default-industry-icon.png' }}
+                    onError={() => handleImageError(industry.name)}
                   />
                   <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                     {industry.name}
