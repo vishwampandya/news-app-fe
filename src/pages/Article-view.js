@@ -2,18 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { 
   Box, 
   Typography, 
-  IconButton,
-  Button,
   CircularProgress,
-  Stack,
-  InputBase,
   Chip,
-  Link,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import ShareIcon from '@mui/icons-material/Share';
-import VolumeUpIcon from '@mui/icons-material/VolumeUp';
-import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSwipeable } from 'react-swipeable';
 import { fetchArticles } from '../services/api';
