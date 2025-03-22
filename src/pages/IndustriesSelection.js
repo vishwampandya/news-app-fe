@@ -142,7 +142,7 @@ const IndustriesSelection = () => {
             position: 'fixed',
             zIndex: 1000,
             width: '100%',
-            top: 5,
+            height: '70px',
           }}>
         <img 
           src={logo} 
@@ -158,7 +158,7 @@ const IndustriesSelection = () => {
 
       {/* Scrollable Content Container */}
       <Box sx={{
-        top: '69px',
+        top: '65px',
         position:"absolute",
         flex: 1,
         minWidth: '100%',
