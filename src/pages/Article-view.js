@@ -3,6 +3,7 @@ import {
   Box, 
   Typography, 
   IconButton,
+  Button,
   CircularProgress,
   Stack,
   InputBase,
@@ -332,19 +333,25 @@ const ArticleCard = ({ article, handlers = {}, sx = {} }) => (
       </Typography>
 
       {/* Read More Link */}
-      <Button
-        variant="text"
+      <Typography
+        component="a"
+        href={article.url}
+        target="_blank"
+        rel="noopener noreferrer"
         sx={{
           color: '#6C5CE7',
-          textTransform: 'none',
+          textDecoration: 'none',
           fontWeight: 500,
-          p: 0,
-          mb: 3
+          display: 'block',
+          mb: 3,
+          cursor: 'pointer',
+          '&:hover': {
+            textDecoration: 'underline'
+          }
         }}
-        onClick={() => window.open(article.url, '_blank')}
       >
         Read More →
-      </Button>
+      </Typography>
 
       {/* Action Buttons */}
       <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 2 }}>

@@ -31,15 +31,20 @@ function App() {
       <MobileBox>
         <React.StrictMode>
           <Router>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <Routes>
-              <Route path="/splash" element={<Splash />} />
-            </Routes>
-          </ThemeProvider>
-        </Router>
-      </React.StrictMode>
-    </MobileBox>
+            <ThemeProvider theme={theme}>
+              <CssBaseline />
+              <Routes>
+                <Route path="/splash" element={<Splash />} />
+                <Route path="/language-selection" element={<LanguageSelection />} />
+                <Route path="/fetching-news" element={<FetchingNews />} />
+                <Route path="/article-view" element={<ArticleView />} />
+                <Route path="/customize-feed" element={<IndustriesSelection />} />
+                <Route path="/" element={<Navigate to="/splash" replace />} />
+              </Routes>
+            </ThemeProvider>
+          </Router>
+        </React.StrictMode>
+      </MobileBox>
     </ContainerBox>
   );
 }
