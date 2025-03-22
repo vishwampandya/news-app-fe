@@ -1,18 +1,29 @@
 import React from 'react';
 import { Box, Typography, CircularProgress } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const FetchingNews = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Automatically navigate after loading
   React.useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const industries = searchParams.get('industries');
+
     const timer = setTimeout(() => {
-      navigate('/article-view');
-    }, 3000); // 3 seconds delay
+      // Pass the industries as a single string
+      const params = new URLSearchParams({
+        industry: industries || '',
+        keyword: 'startup',
+        india_focus: 'true',
+        business_only: 'true'
+      });
+      navigate(`/article-view?${params.toString()}`);
+    }, 3000);
 
     return () => clearTimeout(timer);
-  }, [navigate]);
+  }, [navigate, location]);
 
   return (
     <Box

@@ -73,9 +73,25 @@ export const fetchIndustries = async () => {
   }
 };
 
-export const fetchArticles = async ({ industry, keyword }) => {
+export const fetchArticles = async (params) => {
   try {
-    const url = `${API_BASE_URL}/news/search?industry=${encodeURIComponent(industry)}&keyword=${encodeURIComponent(keyword)}&india_focus=true&business_only=true&page=1&limit=10&sort_by=published_date&sort_order=desc`;
+    // Log the incoming parameters
+    console.log('Fetching articles with params:', params);
+
+    const queryParams = new URLSearchParams({
+      q: '',  // Add empty q parameter as shown in your curl example
+      industry: params.industry || '',
+      keyword: params.keyword || 'startup',
+      india_focus: params.india_focus || 'true',
+      business_only: params.business_only || 'true',
+      page: '1',
+      limit: '10',
+      sort_by: 'published_date',
+      sort_order: 'desc'
+    });
+
+    const url = `${API_BASE_URL}/news/search?${queryParams.toString()}`;
+    console.log('Making request to:', url); // Debug log
     
     const response = await fetch(url, {
       method: 'GET',
@@ -88,10 +104,12 @@ export const fetchArticles = async ({ industry, keyword }) => {
     });
 
     if (!response.ok) {
+      console.error('Response status:', response.status);
       throw new Error(`Failed to fetch articles: ${response.status}`);
     }
 
     const data = await response.json();
+    console.log('Received articles data:', data); // Debug log
     return data;
     
   } catch (error) {

@@ -43,7 +43,11 @@ const IndustriesSelection = () => {
   };
 
   const handleGetNews = () => {
-    navigate('/fetching-news');
+    // Convert selected sub-industries to URL-safe format
+    const selectedIndustriesParam = encodeURIComponent(selectedSubIndustries.join(','));
+    
+    // Navigate to article view with selected industries as query parameters
+    navigate(`/fetching-news?industries=${selectedIndustriesParam}`);
   };
 
   const handleImageError = (industryName) => {
